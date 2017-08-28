@@ -79,10 +79,34 @@ master.sample <- function(island = "South", shp, N = 100){
 	pts[,2] <- pts[,2]*scale.bas + shift.bas[1]
 	pts[,3] <- pts[,3]*scale.bas + shift.bas[2]
 
-	#Give points a projection, clip them as needed.
-	pts.coord <- SpatialPointsDataFrame(cbind(pts[,2],pts[,3]),proj4string=CRS(nztm), data.frame(SiteOrder = pts[,1]))
+	draw <- 1000000
 	
-	pts.sample <- pts.coord[shp, ][1:N, ]
-	return(pts.sample)	
-}
+	getSample <- function(k = 0){
+		seedshift <- ifelse(k == 0, 0, k*draw + seed + 1)
+		pts <- RSHalton(n = draw, seeds = seed + seedshift, bases = c(2,3))
+		pts[,2] <- pts[,2]*scale.bas + shift.bas[1]
+		pts[,3] <- pts[,3]*scale.bas + shift.bas[2]
+		
+		#Give points a projection, clip them as needed.
+		tmp.order <- (k*draw + 1):((k+1)*draw)
+		pts.coord <- SpatialPointsDataFrame(cbind(pts[,2],pts[,3]),proj4string=CRS("+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +units=m +no_defs"), data.frame(SiteOrder = tmp.order))
+		return(pts.coord)
+	}
+	
+	pts.sample <- getSample()
+	pts.sample <- pts.sample[shp, ]
 
+	
+	if(nrow(pts.sample) < N){
+		di <- 1
+		while(nrow(pts.sample) < N){
+			new.pts <- getSample(k = di)
+			new.pts <- new.pts[shp, ]
+			pts.sample <- rbind(pts.sample, new.pts)
+			di <- di + 1
+		}
+		return(pts.sample[1:N,])
+	} else{
+		return(pts.sample[1:N,])
+	}
+}
