@@ -9,8 +9,6 @@
 #--------------------------------------------------------------------
 
 library(sp)
-library(rgdal)
-library(raster)
 
 #' @export
 #Halton Sequence:
@@ -45,7 +43,7 @@ return(pts)
 }
 
 #' @export
-master.sample <- function(island = "South", shp, N = 100){
+masterSample <- function(island = "South", shp, N = 100){
 	#Master Sample seed for South Island, chosen as first random start that fell into SI
 	#seed.si <-  c(4887260, 18041662)
 	#seed.ni <- c(5137598, 8906854)
@@ -74,10 +72,6 @@ master.sample <- function(island = "South", shp, N = 100){
 	d.b <- bb[,2] - bb[,1]
 	scale.bas <- max(d.b)
 	shift.bas <- bb[,1]
-
-	pts <- RSHalton(n = 10000000, seeds = seed, bases = c(2,3))
-	pts[,2] <- pts[,2]*scale.bas + shift.bas[1]
-	pts[,3] <- pts[,3]*scale.bas + shift.bas[2]
 
 	draw <- 1000000
 	
