@@ -51,6 +51,7 @@ masterSample <- function(island = "South", shp, N = 100){
   #Define CRS
   nztm <-"+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
 
+
   if(island == "South")
   {
     bb <- data.frame(min = c(1089354,4747979), max = c(1721164,5516919), row.names = c("x","y"))
@@ -79,7 +80,7 @@ masterSample <- function(island = "South", shp, N = 100){
 
     #Give points a projection, clip them as needed.
     tmp.order <- (k*draw + 1):((k+1)*draw)
-    pts.coord <- SpatialPointsDataFrame(cbind(pts[,2],pts[,3]),proj4string=CRS("+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +units=m +no_defs"), data.frame(SiteOrder = tmp.order))
+    pts.coord <- SpatialPointsDataFrame(cbind(pts[,2],pts[,3]),proj4string=CRS(nztm), data.frame(SiteOrder = tmp.order))
     return(pts.coord)
   }
 
