@@ -9,6 +9,8 @@
 #--------------------------------------------------------------------
 
 library(sp)
+library(raster)
+library(rgeos)
 
 #' @export
 #Halton Sequence:
@@ -51,6 +53,11 @@ masterSample <- function(island = "South", shp, N = 100){
   #Define CRS
   nztm <-"+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
 
+  #If CRS does not match fix that!
+  if(nztm != proj4string(shp)){
+    cat("ERROR: CRS does not match, please project for:", nztm, "\n")
+    return()
+  }
 
   if(island == "South")
   {
@@ -69,7 +76,11 @@ masterSample <- function(island = "South", shp, N = 100){
   scale.bas <- bb[,2] - bb[,1]
   shift.bas <- bb[,1]
 
-  draw <- 10000
+  #Area proportional sampling we can use this to make this code quicker.
+  prop.area <- sum(area(shp))/(scale.bas[1]*scale.bas[2])
+  bb.shp <- bbox(shp)
+
+  draw <- ceiling(N/prop.area) + 1000
 
   getSample <- function(k = 0){
     if(k == 0){ seedshift <- seed
@@ -80,24 +91,27 @@ masterSample <- function(island = "South", shp, N = 100){
 
     #Give points a projection, clip them as needed.
     tmp.order <- (k*draw + 1):((k+1)*draw)
-    pts.coord <- SpatialPointsDataFrame(cbind(pts[,2],pts[,3]),proj4string=CRS(nztm), data.frame(SiteOrder = tmp.order))
+    #Clip the points that are not within our shape's bounding box, keep order That's Important!
+    in.shp <- which((pts[,2] >= bb.shp[1,1]) & (pts[,2] <= bb.shp[1,2]) & (pts[,3] >= bb.shp[2,1]) & (pts[,3] <= bb.shp[2,2]))
+    pts.coord <- SpatialPointsDataFrame(cbind(pts[in.shp,2],pts[in.shp,3]),proj4string=CRS(nztm), data.frame(SiteID = paste0(island, tmp.order[in.shp])))
+    pts.coord <- pts.coord[shp,]
     return(pts.coord)
   }
 
   pts.sample <- getSample()
-  pts.sample <- pts.sample[shp, ]
-
-
-  if(nrow(pts.sample) < N){
-    di <- 1
-    while(nrow(pts.sample) < N){
-      new.pts <- getSample(k = di)
-      new.pts <- new.pts[shp, ]
-      pts.sample <- rbind(pts.sample, new.pts)
-      di <- di + 1
-    }
-    return(pts.sample[1:N,])
-  } else{
-    return(pts.sample[1:N,])
+  if(nrow(pts.sample) == 0) {
+    draw <- draw * 2
+    pts.sample <- getSample()
   }
+
+  di <- 1
+  while(nrow(pts.sample) < N){
+    new.pts <- getSample(k = di)
+    if(nrow(new.pts) > 0) pts.sample <- rbind(pts.sample, new.pts)
+    di <- di + 1
+  }
+
+  pts.sample$SiteOrder <- 1:nrow(pts.sample)
+
+  return(pts.sample[1:N,])
 }
