@@ -12,6 +12,8 @@ library(sp)
 library(raster)
 library(rgeos)
 library(sp)
+library(sp)
+
 
 #' @export
 #Halton Sequence:
