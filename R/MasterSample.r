@@ -98,6 +98,7 @@ masterSample <- function(island = "South", shp, N = 100){
     in.shp <- which((pts[,2] >= bb.shp[1,1]) & (pts[,2] <= bb.shp[1,2]) & (pts[,3] >= bb.shp[2,1]) & (pts[,3] <= bb.shp[2,2]))
     pts.coord <- SpatialPointsDataFrame(cbind(pts[in.shp,2],pts[in.shp,3]),proj4string=CRS(nztm), data.frame(SiteID = paste0(island, tmp.order[in.shp])))
     pts.coord <- pts.coord[shp,]
+    pts.coord$SiteID <-as.character(pts.coord$SiteID)
     return(pts.coord)
   }
 
