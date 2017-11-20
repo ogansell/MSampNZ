@@ -20,6 +20,8 @@ coord <- function(x){
   x <-spTransform(x, prj.LatLong)#Convert CRS to WGS84
 }
 
+#Function to make it easy make leaflet map to view shapefile and mastersample points
+#' @export
 viewdat <- function(x,shp){
   leaflet(options = leafletOptions(zoomControl = FALSE))%>%
     addTiles("http://tiles-a.data-cdn.linz.govt.nz/services;key=d27d21709f324848b2d1ffc5e2220036/tiles/v4/layer=767/EPSG:3857/{z}/{x}/{y}.png",
