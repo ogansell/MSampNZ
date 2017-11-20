@@ -31,5 +31,7 @@ viewdat <- function(points,shp){
     addCircles(data = coord(points), popup = popupTable(points),group = "points", color = "red",
                radius = 300)%>%
     addLayersControl(baseGroups = c("Topo","Satellite"),overlayGroups = c("shp", "points"),
-                     options = layersControlOptions(collapsed = FALSE))
+                     options = layersControlOptions(collapsed = FALSE))%>%
+    addMeasure(primaryLengthUnit = "meters", primaryAreaUnit = "hectares", secondaryLengthUnit = NULL )
+
 }
