@@ -8,11 +8,10 @@
 #Step 3: Ouptut number of points required clipped for that region.
 #--------------------------------------------------------------------
 
-library(sp)
 library(raster)
 library(rgeos)
 library(sp)
-library(sp)
+
 
 
 #' @export
