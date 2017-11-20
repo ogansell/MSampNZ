@@ -22,13 +22,14 @@ coord <- function(x){
 
 #Function to make it easy make leaflet map to view shapefile and mastersample points
 #' @export
-viewdat <- function(x,shp){
+viewdat <- function(points,shp){
   leaflet(options = leafletOptions(zoomControl = FALSE))%>%
     addTiles("http://tiles-a.data-cdn.linz.govt.nz/services;key=d27d21709f324848b2d1ffc5e2220036/tiles/v4/layer=767/EPSG:3857/{z}/{x}/{y}.png",
              group = "Topo") %>% #Add plain topo 50 imagery
     addProviderTiles("Esri.WorldImagery", group = "Satellite")%>%
     addPolygons(data = coord(shp), popup = popupTable(shp), group = "shp")%>%
-    addCircles(data = coord(x), popup = popupTable(x),group = "points", color = "red")%>%
+    addCircles(data = coord(points), popup = popupTable(points),group = "points", color = "red",
+               radius = 300)%>%
     addLayersControl(baseGroups = c("Topo","Satellite"),overlayGroups = c("shp", "points"),
                      options = layersControlOptions(collapsed = FALSE))
 }
