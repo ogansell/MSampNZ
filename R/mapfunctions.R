@@ -20,6 +20,13 @@ coord <- function(x){
   x <-spTransform(x, prj.LatLong)#Convert CRS to WGS84
 }
 
+#Quick conversion to NZTM
+#' @export
+proj.nztm <- function(x){
+  nztm <-"+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+  proj4string(x) = CRS(nztm)
+}
+
 #Function to make it easy make leaflet map to view shapefile and mastersample points
 #' @export
 viewmap <- function(points,rad,shp){
