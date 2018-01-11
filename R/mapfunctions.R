@@ -41,3 +41,18 @@ viewmap <- function(points,rad,shp){
                      options = layersControlOptions(collapsed = FALSE))%>%
     addMeasure(primaryLengthUnit = "meters", primaryAreaUnit = "hectares", secondaryLengthUnit = NULL )
 }
+
+#Function to make it easy make leaflet map to view shapefile and mastersample points and transects generated from mastersample
+#' @export
+viewlinesandpoints <-function (points, rad, shp, polyline) {
+  leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+    addTiles("http://tiles-a.data-cdn.linz.govt.nz/services;key=d27d21709f324848b2d1ffc5e2220036/tiles/v4/layer=767/EPSG:3857/{z}/{x}/{y}.png",
+             group = "Topo") %>%
+    addProviderTiles("Esri.WorldImagery", group = "Satellite") %>%
+    addPolygons(data = coord(shp), group = "shp") %>%
+    addPolylines(data = coord(polyline), popup = popupTable(polyline), color = "green",group = "polyline")%>%
+    addCircles(data = coord(points), popup = popupTable(points), group = "points", color = "red", radius = rad) %>%
+    addLayersControl(baseGroups = c("Topo","Satellite"), overlayGroups = c("shp", "points","polyline"), options = layersControlOptions(collapsed = FALSE)) %>%
+    addMeasure(primaryLengthUnit = "meters", primaryAreaUnit = "hectares",
+               secondaryLengthUnit = NULL)
+}
