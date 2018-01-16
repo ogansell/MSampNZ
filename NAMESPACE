@@ -3,6 +3,7 @@
 S3method(proj,nztm)
 export(RSHalton)
 export(coord)
+export(maketransect)
 export(masterSample)
 export(tomap)
 export(viewlinesandpoints)
