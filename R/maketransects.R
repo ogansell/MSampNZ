@@ -6,11 +6,11 @@ library(sp)
 #Function for generating transects from a start point provided by the master sample
 #' @name maketransect
 #' @title Make transects of a specified distance from SpatialPointsDataFrames
+#' @importFrom sp CRS
+#' @importFrom sp proj4string
+#' @import sp
 #' @export
 maketransect <-function(x,tran.length){
-
-  nztm <-"+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
-  wgs84 <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84")#Set CRS to convert to WGS84
 
 df1 <- x
 
@@ -46,9 +46,9 @@ df1$ID <-1:nrow(df1) #Create ID to merge on
 df1.lines <-merge(sline.df,as.data.frame(df1[,c(1:2,4)]),by = "ID")
 df1.lines <-merge(df1.lines,degrees,by = "ID")
 df1.lines <-merge(df1.lines,as.data.frame(x),by = c("SiteID","SiteOrder"))
-# df1.lines@data$coords.x1.x<-NULL;df1.lines@data$coords.x2.x<-NULL;df1.lines@data$ID<-NULL
-# names(df1.lines@data)[4:5]<-c("EastingNZTM","NorthingNZTM")
-# df1.lines@data$EastingNZTM<-round(df1.lines@data$EastingNZTM,0);df1.lines@data$NorthingNZTM<-round(df1.lines@data$NorthingNZTM,0)
+df1.lines@data$coords.x1.x<-NULL;df1.lines@data$coords.x2.x<-NULL;df1.lines@data$ID<-NULL
+names(df1.lines@data)[4:5]<-c("EastingNZTM","NorthingNZTM")
+df1.lines@data$EastingNZTM<-round(df1.lines@data$EastingNZTM,0);df1.lines@data$NorthingNZTM<-round(df1.lines@data$NorthingNZTM,0)
 
 proj4string(df1.lines) <- CRS(wgs84) # specify CRS
 df1.lines <- spTransform(df1.lines, nztm)#transform to NZTM
