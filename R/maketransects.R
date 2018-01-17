@@ -4,6 +4,8 @@ library(geosphere)
 library(sp)
 
 #Function for generating transects from a start point provided by the master sample
+#' @name maketransect
+#' @title Make transects of a specified distance from SpatialPointsDataFrames
 #' @export
 maketransect <-function(x,tran.length){
 
