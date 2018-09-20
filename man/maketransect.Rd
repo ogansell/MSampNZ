@@ -6,3 +6,6 @@
 \usage{
 maketransect(x, tran.length)
 }
+\description{
+Make transects of a specified distance from SpatialPointsDataFrames
+}
