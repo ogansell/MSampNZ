@@ -69,6 +69,8 @@ systemCong <- function(L = c(1/4, 1/3), J = c(2,2), base = c(2,3))
   return(possible[which(sol1 + sol2 == 2)])
 }
 
+#' @name makeFrame
+#' @title Make a Halton grid over the bounding box
 #' @export
 #Create a Halton Grid over the Bounding Box
 makeFrame <- function(base = c(2,3), J = c(2,2), bb)
@@ -80,6 +82,9 @@ makeFrame <- function(base = c(2,3), J = c(2,2), bb)
 }
 
 # Wrap a Halton Frame over the sample Shape.
+#' @name shape2Frame
+#' @title Wrap a Halton Frame over the sample shape
+#' @export
 shape2Frame <- function(shp, bb = NULL, base = c(2,3), J = c(2,2), projstring = NULL)
 {
   if( !is.null( bb))
@@ -123,11 +128,17 @@ where2Start <- function(J = c(1,1), seeds = c(0,0), bases = c(2,3), boxes = NULL
   return(sort(boxes))
 }
 
+#' @name getProj
+#' @title Define spatial objects in NZTM projection
+#' @export
 getProj <- function()
 {	#NZTM
   "+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
 }
 
+#' @export
+#' @name getBB
+#' @title Get the bounding box for other functions
 getBB <- function(island = "South")
 {
   if(island == "South"){
@@ -151,6 +162,9 @@ getSeed <- function(island = "South")
   return(seed)
 }
 
+#' @name masterSample
+#' @title Generate sample points in New Zealand using BAS master sample
+#' @description Generates BAS sample points in a specified sample frame based on New Zealand terrestrial mastersample. Users need to specify 'island' the sample frame is in and how many points are required.
 #' @export
 masterSample <- function(island = "South", shp, N = 100, J = c(0,0)){
   #Define CRS
@@ -213,6 +227,9 @@ masterSample <- function(island = "South", shp, N = 100, J = c(0,0)){
 #############
 # Take BAS Point and Make Halton Frame around it.
 #############
+#' @name point2Frame
+#' @title Make a halton frame around a BAS point
+#' @export
 point2Frame <- function(pt, bb = NULL, base = c(2,3), J = c(2,2), projstring = NULL)
 {
   if(!is.null(bb))
@@ -236,6 +253,9 @@ point2Frame <- function(pt, bb = NULL, base = c(2,3), J = c(2,2), projstring = N
   return(framei)
 }
 
+#' @name lineSamp
+#' @title Generate samples in linear features based on BAS mastersample
+#' @export
 # Sampling a linear feature:
 lineSamp <- function(n = 10, x, seed = 0, halt = TRUE)
 {
@@ -256,7 +276,7 @@ lineSamp <- function(n = 10, x, seed = 0, halt = TRUE)
   SpatialPoints(xy, proj4string = CRS(proj4string(x)))
 }
 
-
+#' @export
 lineHalton <- function(n = 10, u = 0, b = 5) {
   k <- u:(u+n-1);    xk <- (k %% b)/b;
   for (j in 1:(ceiling(logb(u+n,b)) + 2)) {
