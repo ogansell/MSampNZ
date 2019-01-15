@@ -263,23 +263,31 @@ point2Frame <- function(pt, bb = NULL, base = c(2,3), J = c(2,2), projstring = N
 #' @title Generate samples in linear features based on BAS mastersample
 #' @export
 # Sampling a linear feature:
-lineSamp <- function(n = 10, x, seed = 0, halt = TRUE)
-{
-  cc <- coordinates(x)
-  cc <- do.call("rbind", cc)
-  cc.mat <- as.matrix(do.call("rbind", cc))
-  lengths = LineLength(cc.mat, longlat = FALSE, sum = FALSE)
-  csl = c(0, cumsum(lengths))
-  maxl = csl[length(csl)]
-  if(halt == TRUE){
-    pts = lineHalton(n, u = seed) * maxl
-  }else{
-    pts = runif(n) * maxl
-  }
-  int = findInterval(pts, csl, all.inside = TRUE)
-  where = (pts - csl[int])/diff(csl)[int]
-  xy = cc.mat[int, , drop = FALSE] + where * (cc.mat[int + 1, , drop = FALSE] - cc.mat[int, , drop = FALSE])
-  SpatialPoints(xy, proj4string = CRS(proj4string(x)))
+lineSamp <- function (n = 10, x, seed = 0, halt = TRUE) 
+{	
+	cc <- do.call("c", coordinates(x))
+	# Trick here is to figure out where the "breaks" in the lines occur
+	# By index cumulative sum we can identify them
+	brks <- sapply(cc, nrow)	
+	brk <- cumsum(brks[-length(brks)])	
+    cc.df <- do.call("rbind", cc)
+    cc.mat <- as.matrix(cc.df)
+    lengths = LineLength(cc.mat, longlat = FALSE, sum = FALSE)
+	lengths[brk] <- 0	# Remove the length for discontinuities.
+    csl = c(0, cumsum(lengths))
+    maxl = csl[length(csl)]
+    if (halt == TRUE) {
+        pts = lineHalton(n, u = seed) * maxl
+    }
+    else {
+        pts = runif(n) * maxl
+    }
+    int = findInterval(pts, csl, all.inside = TRUE)
+    where = (pts - csl[int])/diff(csl)[int]
+    xy = cc.mat[int, , drop = FALSE] + where * (cc.mat[int + 
+        1, , drop = FALSE] - cc.mat[int, , drop = FALSE])
+    samp <- SpatialPoints(xy, proj4string = CRS(proj4string(x)))
+	return(samp)
 }
 
 #' @export
