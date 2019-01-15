@@ -147,6 +147,9 @@ getBB <- function(island = "South")
   if(island == "North"){
     bb <- data.frame(min = c(1510593,5390569), max = c(2092000,6223164), row.names = c("x","y"))
   }
+  if(island == "AucklandIslands"){
+    bb <- data.frame(min = c(3490761,4355830), max = c(3525662,4405196), row.names = c("x","y"))
+  }
   return(bb)
 }
 
@@ -158,6 +161,9 @@ getSeed <- function(island = "South")
   }
   if(island == "North"){
     seed <- c(5137598, 8906854)
+  }
+  if(island == "AucklandIslands"){
+    seed <- c(1925006, 6242772)
   }
   return(seed)
 }
@@ -171,7 +177,7 @@ masterSample <- function(island = "South", shp, N = 100, J = c(0,0)){
   nztm <- getProj()
   if(proj4string(shp) != nztm) shp <- spTransform(shp, nztm)
 
-  if(!island %in% c("South", "North")) return("Define the island please.")
+  if(!island %in% c("South", "North","AucklandIslands")) return("Define the island please.")
   bb <- getBB(island)
   seed <- getSeed(island)
 
