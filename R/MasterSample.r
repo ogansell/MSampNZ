@@ -93,7 +93,10 @@ shape2Frame <- function(shp, bb = NULL, base = c(2,3), J = c(2,2), projstring = 
     shift.bas <- bb[,1]
   }else{ return("Define Bounding Box Please.")}
 
-  if( is.null( projstring)) projstring <- getProj()
+  if( is.null( projstring)) {
+	projstring <- getProj(island = "South")
+	cat("Assuming NZTM Projection\n")
+	}
   if(proj4string(shp) != projstring) shp <- spTransform(shp, projstring)
 
   #Stretch bounding box to Halton Frame Size:
@@ -131,10 +134,13 @@ where2Start <- function(J = c(1,1), seeds = c(0,0), bases = c(2,3), boxes = NULL
 #' @name getProj
 #' @title Define spatial objects in NZTM projection
 #' @export
-getProj <- function()
+getProj <- function(island = "South")
 {	#NZTM
-  "+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
-}
+  if(island != "AucklandIslands")
+	return("+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")
+	#NZTM for Auckland Islands
+	return("+proj=tmerc +lat_0=0 +lon_0=166 +k=1 +x_0=3500000 +y_0=10000000 +ellps=GRS80 +units=m +no_defs")
+ }
 
 #' @export
 #' @name getBB
@@ -174,10 +180,11 @@ getSeed <- function(island = "South")
 #' @export
 masterSample <- function(island = "South", shp, N = 100, J = c(0,0)){
   #Define CRS
-  nztm <- getProj()
-  if(proj4string(shp) != nztm) shp <- spTransform(shp, nztm)
 
   if(!island %in% c("South", "North","AucklandIslands")) return("Define the island please.")
+  nztm <- getProj(island)
+  if(proj4string(shp) != nztm) shp <- spTransform(shp, nztm)
+  
   bb <- getBB(island)
   seed <- getSeed(island)
 
@@ -188,9 +195,9 @@ masterSample <- function(island = "South", shp, N = 100, J = c(0,0)){
   #We can use Halton Boxes to speed up code when the polygons are small and all over the place.
   #Kind of like magic!
   draw <- N + 5000
-
+  
   if(sum(J) != 0){
-    hal.frame <- shape2Frame(shp, J = J, bb = bb)
+    hal.frame <- shape2Frame(shp, J = J, bb = bb, projstring = nztm)
     boxes <- which(rowSums(gIntersects(shp, hal.frame, byid = TRUE)) > 0)
     hal.polys <- hal.frame[boxes,]@polygons
     box.lower <- do.call("rbind", lapply(hal.polys, FUN = function(x){data.frame(x = min(x@Polygons[[1]]@coords[,1]), y = min(x@Polygons[[1]]@coords[,2]))}))
