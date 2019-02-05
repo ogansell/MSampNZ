@@ -207,6 +207,10 @@ masterSample <- function(island = "South", shp, N = 100, J = c(0,0)){
   }else{
     halt.rep = 0; B = 1;
   }
+  if(length(halt.rep) == 0)
+  {
+	return("Ahhh I couldn't find the Halton Frames that matched this polygon. You tricky bugger. How small is that dang shape?")
+  }
 
   getSample <- function(k = 0, endPoint = 0){
     if(k == 0){ seedshift <- seed
