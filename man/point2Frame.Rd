@@ -4,8 +4,7 @@
 \alias{point2Frame}
 \title{Make a halton frame around a BAS point}
 \usage{
-point2Frame(pt, bb = NULL, base = c(2, 3), J = c(2, 2),
-  projstring = NULL)
+point2Frame(pt, bb = NULL, base = c(2, 3), J = c(2, 2), projstring = NULL)
 }
 \description{
 Make a halton frame around a BAS point

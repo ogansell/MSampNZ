@@ -4,7 +4,7 @@
 \alias{getProj}
 \title{Define spatial objects in NZTM projection}
 \usage{
-getProj()
+getProj(island = "South")
 }
 \description{
 Define spatial objects in NZTM projection

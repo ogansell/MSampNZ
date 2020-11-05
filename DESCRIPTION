@@ -1,24 +1,24 @@
 Package: MSampNZ
-Title: What the Package Does (one line, title case)
-Version: 0.0.0.9000
-Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Title: New Zealand Master Sample
+Version: 2.0
+Authors@R: person("Ollie", "Gansell", email = "ogansell@doc.govt.nz", role = "cre")
+Description: Selects Master Sample Points for NZ.
 Depends: R (>= 3.3.1),
-    mapview,
     raster,
     leaflet,
     sp,
     spsurvey,
     geosphere,
     rgeos
-License: What license is it under?
-Encoding: UTF-8
-LazyData: true
-RoxygenNote: 6.1.0
+License: GPL (>= 2)
+RoxygenNote: 7.1.1
 Imports: raster,
     rgdal,
-    mapview,
     sp,
-    geosphere,
-    spsurvey,
-    rgeos
+    rgeos,
+	Rcpp
+LinkingTo: Rcpp
+LazyData: true
+NeedsCompilation: yes
+Archs: i386, x64
+Encoding: UTF-8

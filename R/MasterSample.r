@@ -8,9 +8,11 @@
 #Step 3: Ouptut number of points required clipped for that region.
 #--------------------------------------------------------------------
 
-library(raster)
-library(rgeos)
-library(sp)
+#' @import raster
+#' @import sp
+#' @import rgeos
+#' @import Rcpp
+NULL
 
 #' @export
 #Halton Sequence:
@@ -59,8 +61,8 @@ systemCong <- function(L = c(1/4, 1/3), J = c(2,2), base = c(2,3))
 
   L <- c(x[which.min(abs(x - L[1]))], y [which.min(abs(y - L[2]))])
 
-  a1 <- sum( ( floor(L[1]*base[1]^(1:J[1])) %% base[1]) * base[1]^( 1:J[1]-1))
-  a2 <- sum( ( floor(L[2]*base[2]^(1:J[2])) %% base[2]) * base[2]^( 1:J[2]-1))
+  a1 <- sum( ( floor((L[1] + .Machine$double.eps)*base[1]^(1:J[1])) %% base[1]) * base[1]^( 1:J[1]-1))
+  a2 <- sum( ( floor((L[2] + .Machine$double.eps) *base[2]^(1:J[2])) %% base[2]) * base[2]^( 1:J[2]-1))
   mod <- base^J
   B <- prod(mod)
   possible <- 0:(B-1)
@@ -121,10 +123,8 @@ shape2Frame <- function(shp, bb = NULL, base = c(2,3), J = c(2,2), projstring = 
 where2Start <- function(J = c(1,1), seeds = c(0,0), bases = c(2,3), boxes = NULL)
 {
   B <- prod(bases^J)
-  possible <- 0:(B-1)
-  sol1 <- possible %% bases[1]^J[1] == (seeds[1] %% bases[1]^J[1])
-  sol2 <- possible %% bases[2]^J[2] == (seeds[2] %% bases[2]^J[2])
-  boxInit <- possible[which(sol1 + sol2 == 2)]
+  L <- seeds %% bases^J
+  boxInit <- SolveCongruence(matrix(L, ncol = 2, nrow = 1), bases, J)
 
   if(is.null(boxes)) return()
   boxes <- ifelse(boxes < boxInit, B + (boxes - boxInit), boxes - boxInit)
@@ -180,7 +180,7 @@ getSeed <- function(island = "South")
 #' @export
 masterSample <- function(island = "South", shp, N = 100, J = c(0,0)){
   #Define CRS
-
+  base <- c(2,3)
   if(!island %in% c("South", "North","AucklandIslands")) return("Define the island please.")
   nztm <- getProj(island)
   if(proj4string(shp) != nztm) shp <- spTransform(shp, nztm)
@@ -196,21 +196,28 @@ masterSample <- function(island = "South", shp, N = 100, J = c(0,0)){
   #Kind of like magic!
   draw <- N + 5000
   
-  if(sum(J) != 0){
-    hal.frame <- shape2Frame(shp, J = J, bb = bb, projstring = nztm)
-    boxes <- which(rowSums(gIntersects(shp, hal.frame, byid = TRUE)) > 0)
-    hal.polys <- hal.frame[boxes,]@polygons
-    box.lower <- do.call("rbind", lapply(hal.polys, FUN = function(x){data.frame(x = min(x@Polygons[[1]]@coords[,1]), y = min(x@Polygons[[1]]@coords[,2]))}))
-    box.lower <- (t(box.lower) - shift.bas)/scale.bas
-    halt.rep <- apply(box.lower, 2, FUN = systemCong, J = J, base = c(2,3))
-    B <- prod(c(2,3)^J)
-  }else{
-    halt.rep = 0; B = 1;
-  }
-  if(length(halt.rep) == 0)
+  hal.frame <- shape2Frame(shp, J = J, bb = bb, projstring = nztm)
+
+  while(area(shp) < 0.25*area(hal.frame)[1])	# Subset again:
   {
-	return("Ahhh I couldn't find the Halton Frames that matched this polygon. You tricky bugger. How small is that dang shape?")
+	if(base[2]^J[2] > base[1]^J[1]){ 
+		J[1] <- J[1] + 1
+	}else{
+		J[2] <- J[2] + 1
+	}
+	hal.frame <- shape2Frame(shp, J = J, bb = bb, projstring = nztm)	
   }
+	
+	boxes <- which(rowSums(gIntersects(shp, hal.frame, byid = TRUE)) > 0)
+	hal.polys <- hal.frame[boxes,]@polygons
+	# Find the corner Halton Pts
+	box.lower <- do.call("rbind", lapply(hal.polys, FUN = function(x){data.frame(t(x@labpt))}))
+	box.lower <- t(apply(box.lower, 1, FUN = function(x){(x - shift.bas)/scale.bas}))
+	A <- GetBoxIndices(box.lower, base, J)
+	halt.rep <- SolveCongruence(A, base, J)	
+	B <- prod(c(2,3)^J)
+
+	print(J)
 
   getSample <- function(k = 0, endPoint = 0){
     if(k == 0){ seedshift <- seed
@@ -225,7 +232,7 @@ masterSample <- function(island = "South", shp, N = 100, J = c(0,0)){
   }
 
   pts.sample <- getSample()
-  if(nrow(pts.sample) == 0) {
+  while(nrow(pts.sample) == 0) {
     draw <- draw * 2
     pts.sample <- getSample()
   }
