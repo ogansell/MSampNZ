@@ -12,6 +12,8 @@
 #' @import sp
 #' @import rgeos
 #' @import Rcpp
+#' @import rgdal
+#' @import raster
 NULL
 
 #' @export
@@ -142,9 +144,10 @@ getProj <- function(island = "South")
 	return("+proj=tmerc +lat_0=0 +lon_0=166 +k=1 +x_0=3500000 +y_0=10000000 +ellps=GRS80 +units=m +no_defs")
  }
 
-#' @export
+
 #' @name getBB
 #' @title Get the bounding box for other functions
+#' @export
 getBB <- function(island = "South")
 {
   if(island == "South"){
@@ -159,7 +162,7 @@ getBB <- function(island = "South")
   return(bb)
 }
 
-
+#' @export
 getSeed <- function(island = "South")
 {
   if(island == "South"){
@@ -198,7 +201,7 @@ masterSample <- function(island = "South", shp, N = 100, J = c(0,0)){
   
   hal.frame <- shape2Frame(shp, J = J, bb = bb, projstring = nztm)
 
-  while(area(shp) < 0.25*area(hal.frame)[1])	# Subset again:
+  while(raster::area(shp) < 0.25*raster::area(hal.frame)[1])	# Subset again:
   {
 	if(base[2]^J[2] > base[1]^J[1]){ 
 		J[1] <- J[1] + 1

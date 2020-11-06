@@ -1,15 +1,10 @@
 Package: MSampNZ
 Title: New Zealand Master Sample
 Version: 2.0
-Authors@R: person("Ollie", "Gansell", email = "ogansell@doc.govt.nz", role = "cre")
+Date: 2020-11-05
+Author: Paul van Dam-Bates
+Maintainer: Ollie Gansell <ogansell@doc.govt.nz>
 Description: Selects Master Sample Points for NZ.
-Depends: R (>= 3.3.1),
-    raster,
-    leaflet,
-    sp,
-    spsurvey,
-    geosphere,
-    rgeos
 License: GPL (>= 2)
 RoxygenNote: 7.1.1
 Imports: raster,
@@ -22,3 +17,4 @@ LazyData: true
 NeedsCompilation: yes
 Archs: i386, x64
 Encoding: UTF-8
+
