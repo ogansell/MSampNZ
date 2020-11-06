@@ -200,8 +200,8 @@ masterSample <- function(island = "South", shp, N = 100, J = c(0,0)){
   draw <- N + 5000
   
   hal.frame <- shape2Frame(shp, J = J, bb = bb, projstring = nztm)
-
-  while(raster::area(shp) < 0.25*raster::area(hal.frame)[1])	# Subset again:
+  area.shp <- sum(raster::area(shp))
+  while(area.shp < 0.25*raster::area(hal.frame)[1])	# Subset again:
   {
 	if(base[2]^J[2] > base[1]^J[1]){ 
 		J[1] <- J[1] + 1
